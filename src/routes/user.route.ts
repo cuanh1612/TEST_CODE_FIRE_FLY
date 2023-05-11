@@ -15,7 +15,7 @@ export const userRoute = () => {
 
   route.delete("/edit/:id", CatchAsync(UserController.delete));
 
-  route.get("/find-close-users", CatchAsync(UserController.findCloseUsers));
+  route.get("/locate", CatchAsync(UserController.findCloseUsers));
 
   return route;
 };

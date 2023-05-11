@@ -96,8 +96,23 @@ class UserController {
     });
   }
 
-  findCloseUsers(req: Request, res: Response) {
-    return res.send("Find close users");
+  async findCloseUsers(req: Request, res: Response) {
+    const { n = 0, userId } = req.query;
+
+    // check id
+    if (!userId)
+      throw baseError({
+        message: "User not existing in server",
+        statusCode: 404,
+      });
+
+    // find close users sorted by distance from near to far for users with id equal to userId
+    const users = await UserService.findCloseUsers(Number(n), userId as string);
+
+    return new BaseResponse({
+      message: "Find close users success",
+      data: users,
+    });
   }
 }
 

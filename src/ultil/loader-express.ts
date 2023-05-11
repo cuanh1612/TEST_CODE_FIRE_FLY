@@ -18,7 +18,8 @@ export const loaderExpress = (app: Express) => {
     (err: ErrorBase, _: Request, res: Response, __: NextFunction) => {
       if (err) {
         const dataRes = new BaseResponse({
-          message: err.message,
+          error: err.message,
+          success: false,
         });
         return res.status(err?.statusCode || 500).json(dataRes);
       }

@@ -1,15 +1,27 @@
-
 export type baseResponseProps = {
-  message: string;
+  message?: string;
   data?: any;
+  success?: boolean;
+  error?: any;
 };
 
 export class BaseResponse {
-  message: string;
+  success: boolean;
+  message?: string;
   data?: any;
+  error?: any;
 
-  constructor(infoRes: baseResponseProps) {
-    this.message = infoRes.message;
-    this.data = infoRes.data;
+  constructor({ success = true, message, data, error }: baseResponseProps) {
+    this.success = success;
+    this.message = message;
+    this.data = data;
+    this.error = error;
+  }
+
+  toError() {
+    return {
+      success: this.success,
+      error: this.error,
+    };
   }
 }

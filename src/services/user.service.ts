@@ -1,3 +1,5 @@
+import * as geolib from "geolib";
+import { Not } from "typeorm";
 import CreateUserDto from "../dtos/create-user.dto";
 import FilterUserDto from "../dtos/filter-user.dto";
 import UpdateUserDto from "../dtos/update-user.dto";
@@ -82,21 +84,48 @@ class UserService {
         statusCode: 404,
       });
 
-    // find close users sorted by distance from near to far for users with id equal to userId
-    const nearbyUsers = await userRepository
-      .createQueryBuilder("user")
-      .select()
-      .where("user.id != :userId", { userId })
-      .orderBy(
-        `ABS(SUBSTRING(user.coordinate, 1, 3)::integer - SUBSTRING(:coordinate, 1, 3)::integer)
-               + ABS(SUBSTRING(user.coordinate, 5, 3)::integer - SUBSTRING(:coordinate, 5, 3)::integer)`
-      )
-      .setParameter("coordinate", user.coordinate)
-      .getMany();
+    // find all users with id not equal to userId
+    const nearbyUsers = await userRepository.find({
+      where: {
+        id: Not(userId),
+      },
+    });
 
-    console.log(nearbyUsers);
+    // calculate distance and get limit n users and order ASC by distance
+    const usersWithDistance = this.calculateDistanceUsers(user, nearbyUsers, n);
 
-    return nearbyUsers;
+    return usersWithDistance;
+  }
+
+  calculateDistanceUsers(userCalculate: User, users: User[], limit: number) {
+    const [latUserCalculate, longUserCalculate] =
+      userCalculate.coordinate.split(":");
+
+    // calculate distance of other users to coordinate userCalculate
+    const usersWithDistance = users.map((user) => {
+      const [latitude, longitude] = user.coordinate.split(":");
+      const distance = geolib.getDistance(
+        {
+          latitude: parseFloat(latitude),
+          longitude: parseFloat(longitude),
+        },
+        {
+          latitude: parseFloat(latUserCalculate),
+          longitude: parseFloat(longUserCalculate),
+        }
+      );
+
+      return {
+        ...user,
+        distance,
+      };
+    });
+
+    // sort users by distance ASC
+    usersWithDistance.sort((a, b) => a.distance - b.distance);
+
+    // return limit users
+    return usersWithDistance.slice(0, limit);
   }
 }
 

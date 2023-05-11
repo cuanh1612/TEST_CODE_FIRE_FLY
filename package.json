@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rimraf ./build && tsc",
     "start": "npm run build && node build/index.js",
-    "start:dev": "nodemon build/index.js",
+    "start:dev": "npm run build && nodemon build/index.js",
     "ts:watch": "npx tsc --watch"
   },
   "author": "Nguyen Quang Huy",
@@ -27,6 +27,7 @@
     "class-validator": "^0.14.0",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "geolib": "^3.3.3",
     "pg": "^8.10.0",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.3.16",
